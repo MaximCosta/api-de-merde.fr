@@ -1,7 +1,7 @@
 const express = require("express");
 const vhost = require("vhost");
 
-module.exports = function (app, domain) {
+module.exports = function (app, domain, connections) {
   const balance = express(); // balance-ton-pote.fr
   app.use(vhost(`balance-ton-pote.${domain}`, balance));
 

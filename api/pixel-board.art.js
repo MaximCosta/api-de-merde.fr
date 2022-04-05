@@ -1,7 +1,7 @@
 const express = require("express");
 const vhost = require("vhost");
 
-module.exports = function (app, domain) {
+module.exports = function (app, domain, connections) {
   const pixel = express(); // pixel-board.art.js
   app.use(vhost(`pixel-board.${domain}`, pixel));
 
