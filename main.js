@@ -1,38 +1,29 @@
-const pool = require("generic-pool");
 const express = require("express");
 const mysql = require("mysql");
+require("dotenv").config();
 const app = express();
-const domain = process.NODE_ENV === "production" ? "example.com" : "api.local";
-const port = 3000;
 
-const connections = pool.createPool(
-  {
-    create: (done) => {
-      return mysql
-        .createConnection({
-          hostname: "localhost",
-          user: "root",
-          password: "root",
-          database: "api-de-merde",
-        })
-        .connect(done);
-    },
-    destroy: (connection) => connection.destroy(),
-    validate: (connection) => connection.threadId,
-  },
-  {
-    testOnBorrow: true,
-    acquireTimeoutMillis: 10000,
-    min: 1,
-    max: size,
-  }
-);
+const domain = process.env.EXPRESS_ENV === "production" ? "api-de-merde.fr" : "api.local";
+const port = process.env.EXPRESS_PORT;
 
-require("./api/les-conneries-de-nathan.fr")(app, domain, connections);
-require("./api/mangerbougerbaiser.fr")(app, domain, connections);
-require("./api/balance-ton-pote.fr")(app, domain, connections);
-require("./api/drogue.me")(app, domain, connections);
+console.log(`Starting server on \t\t${domain}:${port}`);
+console.log(`Connect to database on \t\t${process.env.MYSQL_HOST}:${process.env.MYSQL_PORT}`);
+console.log(`Using database \t\t\t${process.env.MYSQL_DATABASE}`);
+console.log(`Using database user \t\t${process.env.MYSQL_USER}`);
+
+var pool = mysql.createPool({
+  connectionLimit : 10,
+  host            : process.env.MYSQL_HOST,
+  user            : process.env.MYSQL_USER,
+  password        : process.env.MYSQL_PASSWORD,
+  database        : process.env.MYSQL_DATABASE
+});
+
+require("./api/les-conneries-de-nathan.fr")(app, domain, pool);
+require("./api/mangerbougerbaiser.fr")(app, domain, pool);
+require("./api/balance-ton-pote.fr")(app, domain, pool);
+require("./api/drogue.me")(app, domain, pool);
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Example app listening at http://${domain}:${port}`);
 });

@@ -1,7 +1,7 @@
 const express = require("express");
 const vhost = require("vhost");
 
-module.exports = function (app, domain, connections) {
+module.exports = function (app, domain, pool) {
   const nathan = express(); // les-conneries-de-nathan.fr
   app.use(vhost(`les-conneries-de-nathan.${domain}`, nathan));
 
@@ -10,7 +10,10 @@ module.exports = function (app, domain, connections) {
   });
 
   nathan.get("/random", (req, res) => {
-    res.send("Hello World! random");
+    pool.query('SELECT * FROM nathan_idea ORDER BY rand() LIMIT 1;', function (error, results, fields) {
+      if (error) throw error;
+      res.send(results[0].desc)
+    });
   });
 
   nathan.get("/add", (req, res) => {
